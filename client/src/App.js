@@ -6,23 +6,26 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import About from "./pages/About";
 import Profile from "./pages/Profile";
+import PrivateRoute from "./PrivateRoute/PrivateRoute";
+import { CookiesProvider } from "react-cookie";
 
 const App = () => {
   return (
-    <>
-      <BrowserRouter>
-        <Header />
-        <Routes>
+    // <CookiesProvider>
+    <BrowserRouter>
+      <Header />
+      <Routes>
+        <Route path="/sign-in" element={<SignIn />} />
+        <Route path="/sign-up" element={<SignUp />} />
+        <Route element={<PrivateRoute />}>
           <Route path="/" element={<Home />} />
-          {/* //Login-User */}
-          <Route path="/sign-in" element={<SignIn />} />
-          {/* //Register-User */}
-          <Route path="/sign-up" element={<SignUp />} />
           <Route path="/about" element={<About />} />
           <Route path="/profile" element={<Profile />} />
-        </Routes>
-      </BrowserRouter>
-    </>
+        </Route>
+      </Routes>
+    </BrowserRouter>
+    // </CookiesProvider>
   );
 };
+
 export default App;

@@ -43,7 +43,12 @@ exports.signInController = async (req, res, next) => {
           httpOnly: true,
         })
         .status(200)
-        .json({ data: rest, status: 200, message: "Logged In Successfully" });
+        .json({
+          data: rest,
+          status: 200,
+          message: "Logged In Successfully",
+          token: token,
+        });
     }
   } catch (error) {
     next(error);

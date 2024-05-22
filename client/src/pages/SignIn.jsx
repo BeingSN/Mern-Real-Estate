@@ -1,12 +1,20 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../redux/user/userSlice";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSelector((state) => {
+    return state.user;
+  });
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = async (e) => {
     const { name, value } = e.target;
@@ -19,8 +27,7 @@ const SignIn = () => {
     const baseUrl = "http://localhost:5000";
     const apiEndPoint = "api/auth/signin";
     try {
-      setLoading(true);
-      setError("");
+      dispatch(signInStart());
       const response = await fetch(`${baseUrl}/${apiEndPoint}`, {
         method: "POST",
         headers: {
@@ -30,20 +37,21 @@ const SignIn = () => {
         credentials: "include", // Include credentials (cookies)
       });
       const data = await response.json();
+      console.log(data);
+
       if (data.status === 200) {
-        setError("");
+        dispatch(signInSuccess(data));
+        localStorage.setItem("access_token", data.token);
         navigate("/");
       }
-      if (data.success == false) {
-        setError(data?.message);
-        setLoading(false);
+      if (data?.success == false) {
+        dispatch(signInFailure(data.message));
         return;
       }
-      setLoading(false);
+      dispatch(signInFailure(data?.message));
     } catch (err) {
       console.log(err);
-      setLoading(false);
-      setError(error.message);
+      dispatch(signInFailure(error.message));
     }
   };
 
@@ -51,7 +59,7 @@ const SignIn = () => {
     <>
       <div className="p-3 max-w-lg mx-auto">
         <h1 className="text-3xl text-center font-semibold my-7">Sign In</h1>
-        {error && <p className="text-red-500">{error}</p>}
+        {/* {error && <p className="text-red-500">{error}</p>} */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 ">
           <input
             type="text"
@@ -68,10 +76,11 @@ const SignIn = () => {
             onChange={(e) => handleChange(e)}
           />
           <button
-            disabled={loading}
+            // disabled={loading}
             className="bg-green-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80 "
           >
-            {loading ? "Loading..." : "Sign In"}
+            {/* {loading ? "Loading..." : "Sign In"} */}
+            {"Sign Up"}
           </button>
         </form>
         <div className="flex gap-2 mt-5">
