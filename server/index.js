@@ -8,7 +8,14 @@ const cors = require("cors");
 dotenv.config();
 const app = express();
 app.use(express.json());
-app.use(cors());
+
+const corsOptions = {
+  origin: "http://localhost:3000", // Replace with your frontend URL
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true, // Allow credentials (cookies) to be sent
+};
+app.use(cors(corsOptions)); // Use CORS with options
 
 app.use("/api/v1/user", userRoutes);
 app.use("/api", authRoutes);
