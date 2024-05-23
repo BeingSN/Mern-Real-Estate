@@ -10,6 +10,7 @@ import PrivateRoute from "./PrivateRoute/PrivateRoute";
 import { CookiesProvider } from "react-cookie";
 
 const App = () => {
+  console.log("key", process.env.REACT_APP_FIREBASE_API_KEY);
   return (
     // <CookiesProvider>
     <BrowserRouter>

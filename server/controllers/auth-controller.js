@@ -26,6 +26,7 @@ exports.signUpController = async (req, res, next) => {
 
 exports.signInController = async (req, res, next) => {
   const { email, password } = req.body;
+  console.log(email);
 
   try {
     const validUser = await userModel.findOne({ email });
@@ -52,5 +53,42 @@ exports.signInController = async (req, res, next) => {
     }
   } catch (error) {
     next(error);
+  }
+};
+
+exports.signInWithGoogle = async (req, res, next) => {
+  try {
+    const user = await userModel.findOne({ email: req.body.email });
+    console.log(user);
+    if (user) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY);
+      const { password: pass, ...rest } = user;
+      res
+        .cookie("access-token", token, { httpOnly: true })
+        .status(200)
+        .json({ status: 200, rest, token: token });
+    } else {
+      const generatedPassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8);
+      const hashedPassword = await bcrypt.hash(generatedPassword, 10);
+      const newUser = new userModel({
+        email: req.body.email,
+        username:
+          req.body.name.split(" ").join("").toLowerCase() +
+          Math.random().toString(36).slice(-8),
+        password: hashedPassword,
+        avatar: req.body.photo,
+      });
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY);
+      const { password: pass, ...rest } = newUser._doc;
+      res
+        .cookie("access_token", token, { httpOnly: true })
+        .status(200)
+        .json({ status: 200, rest, token: token });
+      return newUser.save();
+    }
+  } catch (err) {
+    next(err);
   }
 };

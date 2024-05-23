@@ -18,6 +18,11 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    avatar: {
+      type: String,
+      default:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvCBZNzX3stNo3MlHYc9fnpNpFHS9GRkzKiCiyK4vT8Q&s",
+    },
   },
   { timestamps: true }
 );
