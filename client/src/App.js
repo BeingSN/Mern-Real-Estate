@@ -7,12 +7,9 @@ import SignUp from "./pages/SignUp";
 import About from "./pages/About";
 import Profile from "./pages/Profile";
 import PrivateRoute from "./PrivateRoute/PrivateRoute";
-import { CookiesProvider } from "react-cookie";
 
 const App = () => {
-  console.log("key", process.env.REACT_APP_FIREBASE_API_KEY);
   return (
-    // <CookiesProvider>
     <BrowserRouter>
       <Header />
       <Routes>
@@ -25,7 +22,6 @@ const App = () => {
         </Route>
       </Routes>
     </BrowserRouter>
-    // </CookiesProvider>
   );
 };
 

@@ -14,7 +14,6 @@ const OAuth = () => {
     try {
       const provider = new GoogleAuthProvider();
       const auth = getAuth(app);
-      console.log("keyy", process.env.REACT_APP_FIREBASE_API_KEY);
 
       const result = await signInWithPopup(auth, provider);
       console.log(result);

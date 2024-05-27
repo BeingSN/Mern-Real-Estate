@@ -4,10 +4,12 @@ const dotenv = require("dotenv");
 const userRoutes = require("./routes/user-route");
 const authRoutes = require("./routes/auth-routes");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 dotenv.config();
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 const corsOptions = {
   origin: "http://localhost:3000", // Replace with your frontend URL
@@ -17,7 +19,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions)); // Use CORS with options
 
-app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/", userRoutes);
 app.use("/api", authRoutes);
 
 app.use((err, req, res, next) => {
