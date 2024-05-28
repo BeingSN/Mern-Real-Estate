@@ -38,7 +38,7 @@ const SignIn = () => {
         credentials: "include", // Include credentials (cookies)
       });
       const data = await response.json();
-      console.log(data);
+      console.log("data", data);
 
       if (data.status === 200) {
         dispatch(signInSuccess(data));

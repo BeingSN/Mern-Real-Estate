@@ -41,3 +41,30 @@ exports.updateUserCredentials = async (req, res) => {
       .json({ message: "An error occurred", error: err.message });
   }
 };
+
+exports.deleteUser = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const userExist = await userSchema.findOne({ _id: id });
+    if (!userExist) {
+      return res.status(404).json({ message: "User not found" });
+    } else {
+      await userSchema.findByIdAndDelete(id);
+      // Clear the httpOnly access token cookie from the server-side
+      res.clearCookie("access_token", {
+        path: "/",
+        httpOnly: true, // Ensure to set httpOnly to match how the cookie was set
+        // Add other options like domain and secure if applicable
+      });
+
+      res
+        .status(200)
+        .json({ status: 200, message: "User deleted successfully" });
+    }
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: "An error occurred", error: err.message });
+  }
+};

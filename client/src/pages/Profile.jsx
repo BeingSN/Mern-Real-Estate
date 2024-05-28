@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getDownloadURL,
   getStorage,
@@ -7,7 +7,17 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase";
-import { current } from "@reduxjs/toolkit";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import {
+  deleteUserFailure,
+  deleteUserStart,
+  deleteUserSucess,
+  signInSuccess,
+  updateUserFailure,
+  updateUserStart,
+  updateUserSuccess,
+} from "../redux/user/userSlice";
 
 const Profile = () => {
   // allow read;
@@ -19,6 +29,10 @@ const Profile = () => {
     return state?.user?.currentUser;
   });
 
+  const loading = useSelector((state) => {
+    return state?.user?.loading;
+  });
+
   console.log("user", currentUser);
 
   const [file, setFile] = useState(undefined);
@@ -26,7 +40,17 @@ const Profile = () => {
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({});
 
+  const [inputFormData, setInputFormData] = useState({
+    username: currentUser?.data?.username,
+    email: currentUser?.data?.email,
+    password: currentUser?.password,
+    avatar: file?.avatar,
+  });
+
   const fileRef = useRef(null);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleFileUpload = (file) => {
     const storage = getStorage(app);
@@ -62,6 +86,49 @@ const Profile = () => {
     }
   }, [file]);
 
+  const handleCredentialUpdate = async (e) => {
+    e.preventDefault();
+    const url = "http://localhost:5000";
+    const endPoint = "api/v1/updateUser";
+    dispatch(updateUserStart());
+    try {
+      const updateCredentials = await axios.put(
+        `${url}/${endPoint}/${currentUser?.data?._id}`,
+        inputFormData
+      );
+      dispatch(updateUserSuccess(updateCredentials, inputFormData.password));
+      console.log("check", updateCredentials);
+    } catch (err) {
+      dispatch(updateUserFailure(err.message));
+    }
+  };
+
+  const handleChange = (event) => {
+    setInputFormData({
+      ...inputFormData,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const handleDeleteUser = async (e) => {
+    e.preventDefault();
+    const url = "http://localhost:5000";
+    const endPoint = "api/v1/deleteUser";
+    dispatch(deleteUserStart());
+    try {
+      const deleteUser = await axios.delete(
+        `${url}/${endPoint}/${currentUser?.data?._id}`,
+        inputFormData
+      );
+      if (deleteUser?.data?.status === 200) {
+        dispatch(deleteUserSucess());
+        localStorage.removeItem("access_token");
+        navigate("/sign-in");
+      }
+    } catch (err) {
+      dispatch(deleteUserFailure(err.message));
+    }
+  };
   return (
     <div className="p-3 max-w-lg mx-auto ">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
@@ -101,24 +168,41 @@ const Profile = () => {
           placeholder="username"
           name="username"
           className="border p-3 rounded-lg my-4"
+          value={inputFormData.username}
+          onChange={(e) => handleChange(e)}
         />
         <input
           type="email"
           placeholder="email"
           name="email"
           className="border p-3 rounded-lg my-4"
+          value={inputFormData.email}
+          onChange={(e) => handleChange(e)}
         />
         <input
           type="password"
           placeholder="password"
+          name="password"
           className="border p-3 rounded-lg my-4"
+          value={inputFormData.password}
+          onChange={(e) => handleChange(e)}
         />
+        <button
+          onClick={(e) => handleCredentialUpdate(e)}
+          disabled={loading}
+          className="bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80"
+        >
+          {loading ? "Loading..." : "Update"}
+        </button>
       </form>
-      <button className="bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80">
-        update
-      </button>
+
       <div className="flex justify-between mt-5">
-        <span className="text-red-700 cursor-pointer">Delete Account</span>
+        <span
+          className="text-red-700 cursor-pointer"
+          onClick={(e) => handleDeleteUser(e)}
+        >
+          Delete Account
+        </span>
         <span className="text-red-700 cursor-pointer">Logout</span>
       </div>
     </div>
